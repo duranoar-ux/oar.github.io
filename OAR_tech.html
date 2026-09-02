@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso SMS — ONE AIR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0f2744;
+    --navy2: #1a3a5c;
+    --blue: #2d6a9f;
+    --sky: #4a9fd4;
+    --green: #2e7d32;
+    --green-l: #e8f5e9;
+    --amber: #f57f17;
+    --red: #c62828;
+    --gray: #f5f5f3;
+    --gray2: #e8e8e4;
+    --text: #1a1a18;
+    --text2: #5a5a56;
+    --text3: #8a8a84;
+    --white: #ffffff;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: #f0ede8; color: var(--text); min-height: 100vh; }
+  .app { max-width: 820px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  .hdr { background: var(--navy); color: white; border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+  .hdr::before { content:''; position:absolute; right:-40px; top:-40px; width:160px; height:160px; background: rgba(255,255,255,0.04); border-radius:50%; }
+  .hdr h1 { font-size: 19px; font-weight: 600; margin-bottom: 3px; }
+  .hdr p { font-size: 13px; opacity: 0.7; }
+  .hdr-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .hdr-brand { display: flex; align-items: center; gap: 14px; position: relative; z-index: 2; }
+  .hdr-logo-oat { height: 38px; width: auto; background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 8px; flex-shrink: 0; }
+  .hdr-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.25); flex-shrink: 0; }
+  .progress-bar { background: rgba(255,255,255,0.15); border-radius: 4px; height: 5px; margin-top: 14px; }
+  .progress-fill { background: #4fc3f7; height: 5px; border-radius: 4px; transition: width 0.5s ease; }
+  .card { background: var(--white); border: 1px solid var(--gray2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .card-soft { background: var(--gray); border: 1px solid var(--gray2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: 1px solid var(--gray2); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; background: var(--white); color: var(--text); transition: all 0.15s; }
+  .btn:hover { background: var(--gray); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--navy); color: white; border-color: var(--navy); }
+  .btn-primary:hover { background: var(--navy2); }
+  .btn-success { background: var(--green); color: white; border-color: var(--green); }
+  .btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .btn-back { background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.25); font-size: 13px; padding: 7px 14px; }
+  .btn-back:hover { background: rgba(255,255,255,0.2); }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .reg-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .reg-stat span { font-size: 22px; font-weight: 600; color: var(--navy); display: block; }
+  .reg-stat small { font-size: 12px; color: var(--text3); }
+  .form-grid { display: grid; gap: 10px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fg label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+  .fg input { width: 100%; padding: 9px 12px; border: 1px solid var(--gray2); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: white; outline: none; transition: border-color 0.15s; }
+  .fg input:focus { border-color: var(--blue); }
+  .err { background: #fff5f5; color: var(--red); border: 1px solid #fed7d7; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 8px; display: none; }
+  .mod-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: white; border: 1px solid var(--gray2); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+  .mod-item:hover { border-color: var(--blue); background: #f8fbff; transform: translateX(2px); }
+  .mod-item.done { border-color: #a5d6a7; background: #f9fdf9; }
+  .mod-num { width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+  .mod-num.done { background: var(--green); }
+  .mod-info { flex: 1; }
+  .mod-title { font-size: 14px; font-weight: 500; }
+  .mod-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .badge { font-size: 11px; font-weight: 500; padding: 4px 9px; border-radius: 20px; background: var(--gray); color: var(--text3); }
+  .badge.done { background: #e8f5e9; color: var(--green); }
+  .exam-unlock { background: var(--navy); color: white; border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; margin-top: 0.5rem; }
+  .exam-unlock p { font-size: 13px; opacity: 0.8; margin-bottom: 12px; }
+  .pending-bar { background: var(--gray); border-radius: var(--radius); padding: 1rem 1.25rem; text-align: center; font-size: 13px; color: var(--text3); margin-top: 0.5rem; }
+  .slide-content { min-height: 260px; }
+  .section-tag { display: inline-block; background: #e8f0fa; color: var(--navy2); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.03em; text-transform: uppercase; }
+  .slide-h { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 12px; line-height: 1.3; }
+  .slide-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray2); }
+  .slide-dots { display: flex; gap: 5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray2); transition: all 0.2s; }
+  .dot.active { background: var(--navy); width: 18px; border-radius: 4px; }
+  .dot.done { background: var(--green); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .info-box { background: var(--gray); border-radius: 8px; padding: 11px 13px; }
+  .info-box h4 { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .info-box p { font-size: 13px; color: var(--text2); line-height: 1.55; }
+  .key-point { display: flex; gap: 9px; padding: 9px 0; border-bottom: 1px solid var(--gray2); font-size: 14px; line-height: 1.5; align-items: flex-start; }
+  .key-point:last-child { border-bottom: none; }
+  .kp-icon { color: var(--blue); font-size: 12px; flex-shrink: 0; margin-top: 4px; }
+  .note-box { background: var(--gray); border-radius: 8px; padding: 11px 13px; font-size: 13px; color: var(--text2); line-height: 1.55; margin-top: 10px; }
+  .matrix { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .matrix td, .matrix th { padding: 5px 7px; border: 1px solid var(--gray2); text-align: center; }
+  .matrix th { background: var(--gray); font-weight: 600; }
+  .risk-r { background: #ffebee; color: #b71c1c; font-weight: 600; }
+  .risk-y { background: #fff8e1; color: #e65100; font-weight: 600; }
+  .risk-g { background: #e8f5e9; color: #1b5e20; font-weight: 600; }
+  .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border: 1px solid var(--gray2); border-radius: 8px; margin-bottom: 7px; cursor: pointer; transition: all 0.15s; background: white; }
+  .quiz-option:hover { border-color: var(--blue); background: #f8fbff; }
+  .quiz-option.selected { border-color: var(--navy); background: #f0f5ff; }
+  .quiz-option.correct { border-color: var(--green); background: #f1f8f1; }
+  .quiz-option.wrong { border-color: var(--red); background: #fff5f5; }
+  .quiz-option input[type=radio] { accent-color: var(--navy); margin-top: 2px; flex-shrink: 0; }
+  .q-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 1rem 0; }
+  .stat-card { background: var(--gray); border-radius: 8px; padding: 12px; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 600; color: var(--navy); font-family: 'DM Mono', monospace; }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .reminder { background: #e8f0fa; border-radius: 8px; padding: 11px 14px; font-size: 13px; color: var(--navy2); margin-top: 10px; line-height: 1.5; }
+  .fail-hdr { background: #7f1d1d; }
+
+  /* ===== CERTIFICADO ===== */
+  .cert-page { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+  .cert-top { background: var(--navy); color: white; padding: 2.5rem 2.5rem 2rem; position: relative; overflow: hidden; }
+  .cert-top::before { content:''; position:absolute; right:-60px; top:-60px; width:220px; height:220px; background: rgba(255,255,255,0.03); border-radius:50%; }
+  .cert-top::after { content:''; position:absolute; left:-40px; bottom:-60px; width:180px; height:180px; background: rgba(255,255,255,0.03); border-radius:50%; }
+  .cert-logo-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; position: relative; z-index: 2; }
+  .cert-logo-left { display: flex; align-items: center; gap: 14px; }
+  .cert-logo { height: 60px; width: auto; }
+  .cert-logo-oat { height: 44px; width: auto; background: rgba(255,255,255,0.95); border-radius: 6px; padding: 5px 9px; }
+  .cert-brand { text-align: right; }
+  .cert-brand .org { font-size: 13px; font-weight: 600; opacity: 0.9; letter-spacing: 0.05em; }
+  .cert-brand .dept { font-size: 11px; opacity: 0.55; margin-top: 2px; }
+  .cert-title-block { text-align: center; position: relative; z-index: 2; }
+  .cert-check-circle { width: 64px; height: 64px; background: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; color: white; }
+  .cert-title-block h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; margin-bottom: 6px; }
+  .cert-title-block h1 { font-size: 22px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .cert-title-block .subtitle { font-size: 13px; opacity: 0.65; }
+  .cert-divider { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 1.5rem 0; position: relative; z-index:2; }
+  .cert-recipient { text-align: center; position: relative; z-index: 2; padding-bottom: 0.5rem; }
+  .cert-recipient .label { font-size: 11px; opacity: 0.55; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .cert-recipient .name { font-size: 28px; font-weight: 300; letter-spacing: 0.02em; margin-bottom: 4px; }
+  .cert-recipient .role-nif { font-size: 13px; opacity: 0.65; }
+  .cert-bottom { background: white; padding: 1.75rem 2.5rem; }
+  .cert-meta-row { display: flex; gap: 0; border: 1px solid var(--gray2); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
+  .cert-meta-cell { flex: 1; padding: 14px 16px; text-align: center; border-right: 1px solid var(--gray2); }
+  .cert-meta-cell:last-child { border-right: none; }
+  .cert-meta-cell .mc-label { font-size: 11px; color: var(--text3); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; }
+  .cert-meta-cell .mc-value { font-size: 16px; font-weight: 600; color: var(--navy); font-family: 'DM Mono', monospace; }
+  .cert-legal-row { display: flex; align-items: flex-start; gap: 16px; padding-top: 1rem; border-top: 1px solid var(--gray2); }
+  .cert-seal { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--navy2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cert-seal img { width: 40px; height: 40px; object-fit: contain; }
+  .cert-legal-text p { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 4px; }
+  .cert-legal-text small { font-size: 11px; color: var(--text3); }
+  .cert-next { background: #e8f0fa; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--navy2); margin-top: 10px; }
+
+  /* HOJA RESPUESTAS */
+  .ans-page { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); margin-top: 1.5rem; }
+  .ans-hdr { background: #1a3a5c; color: white; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 16px; }
+  .ans-hdr img { height: 44px; width: auto; }
+  .ans-hdr h2 { font-size: 16px; font-weight: 600; }
+  .ans-hdr p { font-size: 12px; opacity: 0.65; margin-top: 2px; }
+  .ans-body { padding: 1.5rem 2rem; }
+  .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ans-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--gray2); border-radius: 8px; }
+  .ans-item.correct { border-color: #a5d6a7; background: #f1faf1; }
+  .ans-item.wrong { border-color: #f5c6c6; background: #fff8f8; }
+  .ans-q-num { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--navy); min-width: 24px; margin-top: 1px; }
+  .ans-content { flex: 1; }
+  .ans-content .aq { font-size: 12px; color: var(--text2); line-height: 1.4; margin-bottom: 4px; }
+  .ans-content .aa { font-size: 12px; font-weight: 600; color: var(--green); }
+  .ans-content .au { font-size: 12px; color: var(--red); }
+  .ans-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  @media (max-width: 560px) {
+    .two-col, .form-row, .ans-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .cert-meta-row { flex-wrap: wrap; }
+    .cert-meta-cell { min-width: 50%; border-bottom: 1px solid var(--gray2); }
+    .cert-top { padding: 1.5rem 1.25rem; }
+    .cert-bottom { padding: 1.25rem; }
+    .cert-recipient .name { font-size: 22px; }
+    .ans-grid { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { background: white; }
+    .app { max-width: 100%; padding: 0; }
+    .screen:not(.active) { display: none; }
+    .cert-page, .ans-page { box-shadow: none; }
+    .cert-top { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .ans-hdr { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    .ans-item.correct, .ans-item.wrong { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- REGISTRO -->
+<div class="screen active" id="screen-register">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-brand">
+        <img class="hdr-logo-oat" src="oar.tech.svg" alt="One Air Tech">
+        <div class="hdr-divider"></div>
+        <div><h1>Curso de Gestión de la Seguridad (SMS)</h1><p>ONE AIR — Formación obligatoria en seguridad operacional</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="font-size:16px;font-weight:600;margin-bottom:4px;">Registro de participante</h2>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Introduce tus datos para generar el certificado de realización al completar el curso.</p>
+    <div class="form-grid">
+      <div class="fg"><label>Nombre completo *</label><input id="reg-name" type="text" placeholder="Nombre y apellidos"></div>
+      <div class="form-row">
+        <div class="fg"><label>NIF/ NIE / DNI *</label><input id="reg-dni" type="text" placeholder="12345678A"></div>
+        <div class="fg"><label>Fecha de realización</label><div id="reg-date-display" style="padding:9px 12px;border:1px solid var(--gray2);border-radius:8px;font-size:14px;color:var(--text2);background:var(--gray);"></div></div>
+      </div>
+      <div class="fg"><label>Cargo / Puesto</label><input id="reg-role" type="text" placeholder="Instructor, Piloto, Mecánico..."></div>
+      <div class="fg"><label>Correo electrónico *</label><input id="reg-email" type="email" placeholder="nombre@oneair.es"></div>
+    </div>
+    <div class="err" id="reg-error"></div>
+    <div style="margin-top:16px;display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="startCourse()">Iniciar curso →</button>
+    </div>
+  </div>
+  <div class="card-soft">
+    <div class="reg-stats">
+      <div class="reg-stat"><span>9</span><small>Módulos</small></div>
+      <div class="reg-stat"><span>25</span><small>Preguntas de examen</small></div>
+      <div class="reg-stat"><span>75%</span><small>Nota mínima aprobado</small></div>
+      <div class="reg-stat"><span>Cert.</span><small>Evidencia de realización</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- ÍNDICE -->
+<div class="screen" id="screen-index">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-brand">
+        <img class="hdr-logo-oat" src="oar.tech.svg" alt="One Air Tech">
+        <div class="hdr-divider"></div>
+        <div><h1>Curso SMS — ONE AIR</h1><p id="index-user"></p></div>
+      </div>
+      <div style="text-align:right;font-size:12px;opacity:0.75;" id="index-progress-text"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="index-progress-fill" style="width:0%"></div></div>
+  </div>
+  <div id="modules-list"></div>
+  <div id="exam-btn-area"></div>
+</div>
+
+<!-- MÓDULO -->
+<div class="screen" id="screen-module">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1 id="mod-title">Módulo</h1><p id="mod-subtitle"></p></div>
+      <button class="btn btn-back" onclick="showScreen('screen-index')">← Índice</button>
+    </div>
+    <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="mod-progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="card" id="slide-area"></div>
+</div>
+
+<!-- EXAMEN -->
+<div class="screen" id="screen-exam">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1>Evaluación final</h1><p>25 preguntas — necesitas al menos 19 respuestas correctas (75%) para aprobar</p></div>
+      <button class="btn btn-back" onclick="backToIndexFromExam()">← Índice</button>
+    </div>
+    <div id="exam-timer" style="display:none;position:fixed;top:16px;right:16px;z-index:1000;text-align:center;font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:white;background:var(--navy);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:7px 18px;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(15,39,68,0.35);">⏱ 60:00</div>
+    <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
+  </div>
+  <div id="exam-area"></div>
+</div>
+
+<!-- CERTIFICADO + HOJA DE RESPUESTAS -->
+<div class="screen" id="screen-cert">
+
+  <!-- CERTIFICADO -->
+  <div class="cert-page">
+    <div class="cert-top">
+      <div class="cert-logo-row">
+        <div class="cert-logo-left">
+          <img class="cert-logo-oat" src="oar.tech.svg" alt="One Air Tech">
+          <img class="cert-logo" src="logo.webp" alt="ONE AIR logo">
+        </div>
+        <div class="cert-brand">
+          <div class="org">ONE AIR</div>
+          <div class="dept">Flight Training Center</div>
+        </div>
+      </div>
+      <div class="cert-title-block">
+        <div class="cert-check-circle">✓</div>
+        <h2>Certifica que</h2>
+        <h1>Curso de Gestión de la Seguridad Operacional (SMS)</h1>
+        <p class="subtitle">Safety Management System — Formación Obligatoria</p>
+      </div>
+      <hr class="cert-divider">
+      <div class="cert-recipient">
+        <p class="label">Ha sido completado satisfactoriamente por</p>
+        <div class="name" id="cert-name"></div>
+        <div class="role-nif" id="cert-role"></div>
+      </div>
+    </div>
+    <div class="cert-bottom">
+      <div class="cert-meta-row">
+        <div class="cert-meta-cell">
+          <div class="mc-label">Puntuación</div>
+          <div class="mc-value" id="cert-score"></div>
+        </div>
+        <div class="cert-meta-cell">
+          <div class="mc-label">Fecha</div>
+          <div class="mc-value" id="cert-date"></div>
+        </div>
+        <div class="cert-meta-cell">
+          <div class="mc-label">Nº Certificado</div>
+          <div class="mc-value" id="cert-num"></div>
+        </div>
+        <div class="cert-meta-cell">
+          <div class="mc-label">Próximo refresco</div>
+          <div class="mc-value" id="cert-next"></div>
+        </div>
+      </div>
+      <div class="cert-legal-row">
+        <div class="cert-seal">
+          <img src="logo.webp" alt="sello">
+        </div>
+        <div class="cert-legal-text">
+          <p>Ha superado el examen final del Curso de Gestión de la Seguridad Operacional de ONE AIR con la calificación indicada, completando los 9 módulos formativos conforme a lo establecido en la Política de Seguridad Operacional de la organización y al Reglamento (CE) 216/2008.</p>
+          <small>Los cursos de refresco son anuales. Este certificado tiene validez de 12 meses desde la fecha de emisión.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin:1rem 0;flex-wrap:wrap;" class="no-print">
+    <button class="btn btn-primary" onclick="window.print()">Imprimir / Guardar PDF</button>
+    <button class="btn" onclick="showScreen('screen-index')">Volver al índice</button>
+  </div>
+
+  <!-- HOJA DE RESPUESTAS -->
+  <div class="ans-page">
+    <div class="ans-hdr">
+      <img src="logo.webp" alt="ONE AIR">
+      <div>
+        <h2>Hoja de respuestas del examen</h2>
+        <p id="ans-subtitle">Evaluación final — Curso SMS</p>
+      </div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-grid" id="ans-grid"></div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray2);display:flex;gap:1.5rem;font-size:13px;color:var(--text2);">
+        <span>✅ Correctas: <strong id="ans-correct" style="color:var(--green);"></strong></span>
+        <span>❌ Incorrectas: <strong id="ans-wrong" style="color:var(--red);"></strong></span>
+        <span>Puntuación: <strong id="ans-score2" style="color:var(--navy);font-family:'DM Mono',monospace;"></strong></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUSPENSO -->
+<div class="screen" id="screen-fail">
+  <div class="hdr fail-hdr">
+    <h1>Evaluación no superada</h1>
+    <p>No has alcanzado el 75% mínimo requerido</p>
+  </div>
+  <div class="card">
+    <div id="fail-score" style="font-size:22px;font-weight:600;color:var(--red);margin-bottom:8px;font-family:'DM Mono',monospace;"></div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;">Repasa los módulos del curso y vuelve a intentarlo.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="showScreen('screen-index')">Revisar módulos</button>
+      <button class="btn" onclick="startExam()">Repetir examen</button>
+    </div>
+  </div>
+  <div id="fail-review"></div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+
+const MODULES = [
+  { id:0, title:"Introducción y objetivos", slides:[{title:"Importancia del SMS en aviación",content:s0_0},{title:"Política de seguridad de ONE AIR",content:s0_1},{title:"Objetivos del curso",content:s0_2}]},
+  { id:1, title:"Conceptos básicos de seguridad", slides:[{title:"Seguridad: peligro ≠ riesgo",content:s1_0},{title:"Modelo de causalidad",content:s1_1},{title:"Modelo SHELL",content:s1_2}]},
+  { id:2, title:"Fundamentos del SMS", slides:[{title:"Definición de SMS y SSP",content:s2_0},{title:"Marco OACI del SMS — 4 componentes",content:s2_1}]},
+  { id:3, title:"Cultura de seguridad", slides:[{title:"Cultura justa (Just Culture)",content:s3_0},{title:"Tipos de organizaciones",content:s3_1}]},
+  { id:4, title:"Gestión de riesgos e identificación de peligros", slides:[{title:"Riesgo: probabilidad × severidad",content:s4_0},{title:"Proceso de gestión de riesgos",content:s4_1},{title:"Cómo reportar un peligro",content:s4_2}]},
+  { id:5, title:"Aseguramiento de la seguridad y cumplimiento", slides:[{title:"Matriz de evaluación del riesgo",content:s5_0},{title:"Monitoreo, auditorías y mejora continua",content:s5_1}]},
+  { id:6, title:"Reporte e investigación de incidentes", slides:[{title:"Procedimiento de reporte",content:s6_0},{title:"Investigación de accidentes",content:s6_1}]},
+  { id:7, title:"Respuesta ante emergencias y gestión de crisis", slides:[{title:"Plan de Respuesta ante Emergencias (ERP)",content:s7_0},{title:"Activación del ERP",content:s7_1}]},
+  { id:8, title:"Promoción de la seguridad e integración", slides:[{title:"Estrategias de promoción",content:s8_0},{title:"Comunicación y circulares operativas",content:s8_1}]}
+];
+
+function s0_0(){return`<span class="section-tag">Módulo 1 · Introducción</span><h2 class="slide-h">¿Por qué es importante el SMS en aviación?</h2><div class="two-col"><div class="info-box"><h4>Prevención de accidentes</h4><p>Identifica y mitiga riesgos antes de que resulten en accidentes o incidentes operacionales.</p></div><div class="info-box"><h4>Mejora continua</h4><p>Establece procesos sistemáticos para elevar continuamente los estándares de seguridad.</p></div><div class="info-box"><h4>Cumplimiento normativo</h4><p>Garantiza el cumplimiento del Reglamento (CE) 216/2008 y la normativa EASA/OACI vigente.</p></div><div class="info-box"><h4>Eficiencia operativa</h4><p>Un entorno seguro reduce costes operativos y mejora el rendimiento general de la organización.</p></div></div>`;}
+function s0_1(){return`<span class="section-tag">Módulo 1 · Política</span><h2 class="slide-h">Política de Seguridad Operacional de ONE AIR</h2><div class="key-point"><span class="kp-icon">▶</span><span>La seguridad operacional <strong>primará siempre</strong> sobre los aspectos económicos, comerciales o de cualquier otra índole.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>La seguridad es responsabilidad de <strong>todos los empleados</strong> en todos los campos de actuación.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>ONE AIR cumplirá el <strong>Reglamento (CE) 216/2008</strong> y demás normativa específica de ejecución.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Se aplicarán principios de <strong>cultura justa</strong>: no se tomarán medidas punitivas por notificaciones de buena fe.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>El <strong>Jefe de Enseñanza (HT)</strong> es el responsable de desarrollar y dar cumplimiento a esta política.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Los indicadores del SMS <strong>nunca se usarán</strong> para aplicar medidas punitivas ni búsqueda de responsables.</span></div>`;}
+function s0_2(){return`<span class="section-tag">Módulo 1 · Objetivos</span><h2 class="slide-h">Objetivos del curso</h2><div class="key-point"><span class="kp-icon">▶</span><span><strong>Comprensión integral:</strong> Conocer los principios y prácticas del SMS mediante formación especializada y documentación clara.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Cultura de seguridad:</strong> Mejorar la cultura de seguridad de ONE AIR a través de la responsabilidad individual y la comunicación efectiva.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Gestión de riesgos:</strong> Identificar peligros, evaluar riesgos y aplicar medidas mitigadoras eficaces.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Cumplimiento normativo:</strong> Asegurar el cumplimiento de las normativas de seguridad aérea vigentes.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Documentación:</strong> Revisar el OMM, ERP, listado de peligros, reportes, y actas del SRB (3/año) y SAG.</span></div>`;}
+function s1_0(){return`<span class="section-tag">Módulo 2 · Conceptos</span><h2 class="slide-h">Peligro ≠ Riesgo</h2><div class="two-col" style="margin-bottom:12px;"><div class="info-box" style="border-left:3px solid var(--red);"><h4>Peligro</h4><p>Fuente, situación o acto que puede ocasionar daños. Es la condición previa. Ej: piso resbaladizo, tablero eléctrico con manos húmedas.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>Riesgo</h4><p>Probabilidad de que el peligro se materialice y ocasione daños. Ej: riesgo de caída, riesgo de contacto eléctrico.</p></div></div><div class="note-box">La seguridad en aviación es el estado en el que los riesgos de lesiones o daños son <strong>gestionados a un nivel aceptable</strong>. No significa ausencia de peligros, sino gestión eficaz de los mismos.</div>`;}
+function s1_1(){return`<span class="section-tag">Módulo 2 · Causalidad</span><h2 class="slide-h">Modelo de causalidad — James Reason (Queso suizo)</h2><p style="font-size:14px;color:var(--text2);margin-bottom:10px;">Los accidentes ocurren cuando los fallos en múltiples capas se alinean:</p><div style="text-align:center;margin-bottom:10px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Swiss_cheese_model_of_accident_causation.png/640px-Swiss_cheese_model_of_accident_causation.png" alt="Modelo queso suizo de James Reason" style="max-width:100%;height:auto;border-radius:8px;border:1px solid var(--gray2);" onerror="this.style.display='none'"></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Causa:</strong> Factor que origina el evento. Ej: fallo mecánico o error humano.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Consecuencia:</strong> Resultado del evento. Ej: daños a la aeronave o lesiones.</span></div><div class="note-box">Cada capa defensiva (organización, lugar de trabajo, personas, defensas técnicas) tiene "agujeros". El accidente ocurre cuando todos los agujeros se alinean y permiten que el peligro alcance el resultado dañino.</div>`;}
+function s1_2(){return`<span class="section-tag">Módulo 2 · SHELL</span><h2 class="slide-h">Modelo SHELL — componentes del sistema</h2><div style="display:grid;gap:8px;"><div class="info-box" style="border-left:3px solid var(--navy);"><h4>S — Software</h4><p>Reglamentos, leyes, manuales, procedimientos, listas de verificación y normas.</p></div><div class="info-box" style="border-left:3px solid var(--blue);"><h4>H — Hardware</h4><p>Maquinaria, aeronaves, hangares, equipos de vuelo e instrumentación.</p></div><div class="info-box" style="border-left:3px solid var(--sky);"><h4>E — Environment (Entorno)</h4><p>Condiciones meteorológicas, orografía, entorno operacional y factores externos.</p></div><div class="info-box" style="border-left:3px solid var(--red);"><h4>L — Liveware (Factor humano)</h4><p>Pilotos, instructores, mecánicos, controladores. Es el centro del modelo.</p></div></div><div class="note-box" style="margin-top:10px;">El SMS analiza cómo las interfaces entre el ser humano (L) y los demás componentes pueden generar fallos que deriven en accidentes.</div>`;}
+function s2_0(){return`<span class="section-tag">Módulo 3 · SMS y SSP</span><h2 class="slide-h">Definición de SMS y SSP</h2><div class="info-box" style="margin-bottom:10px;border-left:3px solid var(--navy);"><h4>SMS — Sistema de Gestión de Seguridad</h4><p>Enfoque sistemático para gestionar la seguridad, incluyendo estructuras organizativas, responsabilidades, políticas y procedimientos necesarios para alcanzar niveles aceptables de seguridad operacional.</p></div><div class="info-box" style="border-left:3px solid var(--blue);"><h4>SSP — Programa de Seguridad Operacional del Estado</h4><p>Conjunto integrado de reglamentos y actividades a nivel estatal. Los estados son responsables de: reglamentación, investigación de accidentes, garantía de seguridad, sistemas de reportes y análisis de datos.</p></div>`;}
+function s2_1(){return`<span class="section-tag">Módulo 3 · Marco OACI</span><h2 class="slide-h">Los 4 componentes del SMS según OACI</h2><div style="display:grid;gap:8px;">${[['1','Política y objetivos de seguridad','Responsabilidad de la dirección, políticas, responsabilidades, personal clave, planificación de emergencias y documentación del SMS.','#c62828'],['2','Gestión del riesgo de seguridad','Identificación de peligros y evaluación y mitigación del riesgo operacional.','#f57f17'],['3','Garantía de la seguridad','Monitoreo y medición del desempeño, gestión del cambio y mejora continua del SMS.','#2e7d32'],['4','Promoción de la seguridad','Entrenamiento, educación y comunicación de seguridad a todos los niveles.','#1a3a5c']].map(([n,t,d,c])=>`<div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:28px;height:28px;border-radius:50%;background:${c};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'DM Mono',monospace;">${n}</div><div class="info-box" style="flex:1;padding:9px 12px;"><h4>${t}</h4><p>${d}</p></div></div>`).join('')}`;}
+function s3_0(){return`<span class="section-tag">Módulo 4 · Cultura</span><h2 class="slide-h">Cultura justa (Just Culture)</h2><div class="info-box" style="margin-bottom:12px;border-left:3px solid var(--navy);"><h4>Definición</h4><p>Aquella en la que <strong>no se castiga</strong> a los operadores por acciones acordes con su experiencia y capacitación, pero en la cual <strong>no se toleran</strong> la negligencia grave, las infracciones intencionadas ni los actos destructivos.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${[['Cultura de la información','La información sobre seguridad se comparte y busca activamente.','#e8f5e9','#2e7d32'],['Cultura flexible','La organización adapta sus estructuras ante situaciones cambiantes.','#e8f0fa','#1a3a5c'],['Cultura de notificación','El personal se siente seguro al reportar errores e incidentes.','#fff3e0','#e65100'],['Cultura de aprendizaje','Se aprende de los incidentes para mejorar continuamente.','#fce4ec','#880e4f']].map(([t,d,bg,c])=>`<div style="background:${bg};border-radius:8px;padding:10px 12px;"><h4 style="font-size:12px;font-weight:600;color:${c};margin-bottom:4px;">${t}</h4><p style="font-size:12px;color:${c};opacity:0.85;line-height:1.5;">${d}</p></div>`).join('')}</div>`;}
+function s3_1(){return`<span class="section-tag">Módulo 4 · Tipos</span><h2 class="slide-h">Tipos de organizaciones según su cultura de seguridad</h2><table class="matrix"><tr><th></th><th style="background:#fee2e2;color:#b91c1c;">Patológica</th><th style="background:#fef9c3;color:#92400e;">Burocrática</th><th style="background:#dcfce7;color:#166534;">Generativa</th></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Información</td><td class="risk-r">Escondida</td><td class="risk-y">Ignorada</td><td class="risk-g">Buscada</td></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Mensajeros</td><td class="risk-r">Eliminados</td><td class="risk-y">Tolerados</td><td class="risk-g">Entrenados</td></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Reportes</td><td class="risk-r">Evitados</td><td class="risk-y">Permitidos</td><td class="risk-g">Recompensados</td></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Fallas</td><td class="risk-r">Encubiertas</td><td class="risk-y">Disculpadas</td><td class="risk-g">Analizadas</td></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Ideas nuevas</td><td class="risk-r">Restringidas</td><td class="risk-y">Problemáticas</td><td class="risk-g">Bienvenidas</td></tr><tr><td style="font-weight:600;font-size:12px;text-align:left;padding-left:8px;">Resultado</td><td class="risk-r">Conflictiva</td><td class="risk-y">Burocrática</td><td class="risk-g">Confiable ✓</td></tr></table><div class="note-box" style="margin-top:10px;">ONE AIR aspira a una <strong>cultura generativa</strong>: información buscada activamente, reportes recompensados y fallos analizados para aprender.</div>`;}
+function s4_0(){return`<span class="section-tag">Módulo 5 · Riesgos</span><h2 class="slide-h">Riesgo = Probabilidad × Severidad</h2><div class="two-col" style="margin-bottom:12px;"><div class="info-box" style="border-left:3px solid var(--red);"><h4>Peligro</h4><p>Condición, objeto o actividad que puede causar daño potencial. Es la fuente del problema.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>Riesgo</h4><p>Combinación de la <strong>probabilidad</strong> de que ocurra el evento peligroso y la <strong>severidad</strong> de sus consecuencias.</p></div></div><div class="note-box"><strong>Ejemplo en aviación:</strong> Peligro → Fatiga del piloto. Riesgo → Probabilidad de que la fatiga cause una decisión errónea durante el vuelo × gravedad del posible accidente resultante.</div>`;}
+function s4_1(){return`<span class="section-tag">Módulo 5 · Proceso</span><h2 class="slide-h">Proceso de gestión de riesgos</h2><div style="display:flex;flex-direction:column;gap:7px;">${[['1','Identificación de peligros','Reconocer las posibles fuentes de daño en las actividades de la organización.','#0f2744'],['2','Evaluación de riesgos','Analizar la probabilidad de que ocurra el incidente y la gravedad de sus consecuencias.','#1a3a5c'],['3','Mitigación de riesgos','Desarrollar e implementar estrategias para reducir la probabilidad o el impacto identificado.','#2d6a9f'],['4','Implementar controles','Poner en práctica las medidas de mitigación acordadas y asignar responsabilidades.','#1976d2'],['5','Supervisar y evaluar','Monitoreo continuo de la efectividad de las medidas y ajustes cuando sea necesario.','#0288d1']].map(([n,t,d,c])=>`<div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:26px;height:26px;border-radius:50%;background:${c};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'DM Mono',monospace;">${n}</div><div class="info-box" style="flex:1;padding:8px 11px;"><h4 style="font-size:13px;">${t}</h4><p style="font-size:12px;">${d}</p></div></div>`).join('')}`;}
+function s4_2(){return`<span class="section-tag">Módulo 5 · Reporte peligros</span><h2 class="slide-h">Cómo reportar un peligro en ONE AIR</h2><div style="display:grid;gap:8px;margin-bottom:12px;"><div class="info-box" style="border-left:3px solid var(--navy);"><h4>¿Dónde reportar?</h4><p>Correo: <strong>seguridad@oneair.es</strong> — También disponible el formulario impreso de Reporte de Seguridad Operacional.</p></div><div class="info-box" style="border-left:3px solid var(--green);"><h4>¿Cuándo reportar?</h4><p>Dentro de las <strong>72 horas</strong> siguientes al conocimiento del suceso.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>¿Qué incluir?</h4><p>Descripción del suceso, cómo evitarlo, fecha, lugar, nombre (si se desea) y propuesta de mejora.</p></div></div><div class="note-box">Todos los reportes tienen <strong>carácter confidencial</strong>. La información no se utilizará para medidas punitivas, únicamente para mejorar la seguridad operacional.</div>`;}
+function s5_0(){return`<span class="section-tag">Módulo 6 · Matriz</span><h2 class="slide-h">Matriz de evaluación del riesgo operacional</h2><table class="matrix"><tr><th rowspan="2">Probabilidad</th><th colspan="5">Gravedad</th></tr><tr><th>Catastrófico (A)</th><th>Peligroso (B)</th><th>Grave (C)</th><th>Leve (D)</th><th>Insignif. (E)</th></tr><tr><th>Frecuente (5)</th><td class="risk-r">5A</td><td class="risk-r">5B</td><td class="risk-r">5C</td><td class="risk-y">5D</td><td class="risk-y">5E</td></tr><tr><th>Ocasional (4)</th><td class="risk-r">4A</td><td class="risk-r">4B</td><td class="risk-y">4C</td><td class="risk-y">4D</td><td class="risk-y">4E</td></tr><tr><th>Remoto (3)</th><td class="risk-r">3A</td><td class="risk-y">3B</td><td class="risk-y">3C</td><td class="risk-y">3D</td><td class="risk-g">3E</td></tr><tr><th>Improbable (2)</th><td class="risk-y">2A</td><td class="risk-y">2B</td><td class="risk-y">2C</td><td class="risk-g">2D</td><td class="risk-g">2E</td></tr><tr><th>S. improbable (1)</th><td class="risk-y">1A</td><td class="risk-g">1B</td><td class="risk-g">1C</td><td class="risk-g">1D</td><td class="risk-g">1E</td></tr></table><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><span style="background:#fee2e2;color:#b91c1c;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🔴 Intolerable: 5A, 5B, 5C, 4A, 4B, 3A</span><span style="background:#fef9c3;color:#92400e;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟡 Tolerable: requiere decisión</span><span style="background:#dcfce7;color:#166534;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟢 Aceptable</span></div>`;}
+function s5_1(){return`<span class="section-tag">Módulo 6 · Monitoreo</span><h2 class="slide-h">Monitoreo, auditorías y mejora continua</h2><div class="key-point"><span class="kp-icon">▶</span><span>El <strong>Gestor de Seguridad</strong> realiza revisiones <strong>mensuales</strong> de cada medida mitigadora y determina su eficacia.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Se realizan <strong>auditorías internas anuales</strong> del Sistema de Gestión para verificar el cumplimiento de los objetivos del Manual de Gestión.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>El <strong>SRB (Safety Review Board)</strong> se reúne <strong>3 veces al año</strong> para revisar indicadores de seguridad a nivel directivo.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>El <strong>SAG (Safety Action Group)</strong> se activa ante un suceso relevante para analizar causas y definir medidas.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>La mejora continua se logra mediante revisión de procesos e implementación de <strong>acciones correctivas y preventivas</strong>.</span></div>`;}
+function s6_0(){return`<span class="section-tag">Módulo 7 · Reporte</span><h2 class="slide-h">Procedimiento de reporte de incidentes</h2><div class="two-col" style="margin-bottom:10px;"><div class="info-box" style="border-left:3px solid var(--navy);"><h4>Sucesos de notificación obligatoria</h4><p>Colisiones, despegue/aterrizaje, combustible, comunicación, condiciones meteorológicas, incapacitación de tripulación, defectos estructurales, averías, propulsión, ATM/ANS, actividades en aeródromo.</p></div><div class="info-box" style="border-left:3px solid var(--green);"><h4>Cómo y cuándo reportar</h4><p>📧 <strong>seguridad@oneair.es</strong><br>⏱ Plazo: <strong>72 horas</strong> desde el conocimiento<br>🔒 Carácter: <strong>Confidencial</strong></p></div></div><div class="note-box">Además de la notificación obligatoria, existe un sistema de <strong>reportes voluntarios</strong> para sucesos no obligatorios pero que el empleado considera relevante para la seguridad operacional.</div>`;}
+function s6_1(){return`<span class="section-tag">Módulo 7 · Investigación</span><h2 class="slide-h">Investigación de accidentes e incidentes</h2><div class="key-point"><span class="kp-icon">▶</span><span>En caso de accidente grave, el Estado correspondiente realizará una investigación oficial. ONE AIR realizará una <strong>investigación paralela</strong> para detectar fallos internos y tomar medidas inmediatas.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>ONE AIR nombrará un <strong>representante</strong> para participar en la investigación oficial del Estado correspondiente.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Guía de referencia: <strong>Anexo 13 de OACI</strong> — Investigación de Accidentes e Incidentes en aviación.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Al finalizar se emitirá un informe para la <strong>Junta de Revisión de Seguridad Operacional</strong> con medidas preventivas, correctivas o mitigadoras.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>La información derivada de la investigación será diseminada a todos los empleados de ONE AIR mediante boletines especiales.</span></div>`;}
+function s7_0(){return`<span class="section-tag">Módulo 8 · ERP</span><h2 class="slide-h">Plan de Respuesta ante Emergencias (ERP)</h2><div class="info-box" style="margin-bottom:10px;border-left:3px solid var(--red);"><h4>¿Qué es el ERP?</h4><p>Plan diseñado para desarrollar de forma ordenada y estructurada las actuaciones ante un incidente o accidente de aeronaves y otras posibles situaciones de crisis. Establece compromisos, políticas y procedimientos para responder a una emergencia.</p></div><div class="info-box" style="border-left:3px solid var(--navy);"><h4>Gabinete de Respuesta ante Emergencias (ERC)</h4><p>Presidido por el Director Responsable. Miembros: <strong>AM</strong> Director Responsable · <strong>HT</strong> Jefe de Enseñanza · <strong>SM</strong> Resp. de Seguridad Operacional · <strong>CTKI</strong> Jefe de Instrucción teórica.</p></div>`;}
+function s7_1(){return`<span class="section-tag">Módulo 8 · Activación</span><h2 class="slide-h">¿Cuándo se activa el ERP?</h2><div class="key-point"><span class="kp-icon">▶</span><span>Accidente de un avión perteneciente a ONE AIR.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Amenaza de bomba, sabotaje o secuestro de una aeronave que pertenece o opera por cuenta de ONE AIR.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Incidente que afecte a los instructores y/o alumnos de ONE AIR.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Accidente con daños materiales considerables o daños ambientales importantes (derrame químico, emisoras de radiación).</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Desastres naturales (inundaciones, tornados, etc.) donde se vean involucradas aeronaves de ONE AIR.</span></div><div style="background:#fee2e2;border-radius:8px;padding:10px 13px;margin-top:10px;font-size:13px;color:#b91c1c;font-weight:600;">⚠ El ERP se activa ÚNICAMENTE ante sucesos relevantes e importantes.</div>`;}
+function s8_0(){return`<span class="section-tag">Módulo 9 · Promoción</span><h2 class="slide-h">Estrategias para promover la conciencia de seguridad</h2><div class="key-point"><span class="kp-icon">▶</span><span><strong>Campañas de concienciación:</strong> Materiales visuales sobre peligros específicos: FOD (Foreign Object Debris), fatiga, procedimientos operativos.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Boletines y carteles:</strong> Difusión periódica de medidas mitigadoras y buenas prácticas operacionales.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Sesiones de formación:</strong> Curso inicial antes del inicio de la actividad. Cursos de refresco anuales. Examen tipo test con superación del 75%.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>FOD:</strong> Objeto inanimado dentro del área de movimiento que no tiene función operacional y puede representar un peligro para las aeronaves.</span></div>`;}
+function s8_1(){return`<span class="section-tag">Módulo 9 · Comunicación</span><h2 class="slide-h">Comunicación y circulares operativas</h2><div class="info-box" style="margin-bottom:10px;border-left:3px solid var(--navy);"><h4>Circulares operativas — ¿Dónde?</h4><p>Carpeta <strong>ONE AIR DOCS</strong> de Google Drive, compartida con todos los trabajadores. Se revisarán todas las circulares anteriores para conocer las medidas mitigadoras ya adoptadas.</p></div><div class="info-box" style="margin-bottom:10px;border-left:3px solid var(--green);"><h4>¿Cuándo leerlas?</h4><p>De forma <strong>constante</strong>. Las últimas circulares deben leerse tan pronto se difundan y proporcionar <strong>confirmación de lectura</strong>.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>Canales de comunicación interna</h4><p>Chats de grupo de WhatsApp, correo electrónico y plataformas digitales para mantener a todos los empleados informados y comprometidos con la seguridad.</p></div>`;}
+
+const QUESTIONS = [
+  // --- BLOQUE 1: Reporte y notificaciones (10 preguntas) ---
+  // P1 — sin cambios
+  {q:"¿Cuál es el plazo máximo para reportar un suceso al SMS de ONE AIR?",opts:["24 horas","48 horas","72 horas","1 semana"],ans:2},
+  // P2 — cambiado: quitar direccion@oneair.es, poner email aleatorio
+  {q:"¿A qué dirección de correo se deben enviar los reportes de seguridad en ONE AIR?",opts:["operaciones@oneair.es","formacion@oneair.es","seguridad@oneair.es","mantenimiento@oneair.es"],ans:2},
+  // P3 — cambiado: relacionada con vuelos de instrucción
+  {q:"Durante un vuelo de instrucción se produce una situación anómala que afecta a la seguridad. ¿Cuál de las siguientes es de notificación OBLIGATORIA?",opts:["El alumno comete un error de procedimiento que el instructor corrige sin incidencia","Incapacitación del instructor o del alumno durante el vuelo","El alumno no consigue la velocidad de ascenso recomendada","El vuelo se cancela por viento cruzado dentro de límites"],ans:1},
+  // P4 — cambiado: quitar "sistema COPAC" del enunciado
+  {q:"¿Cuál de los siguientes sucesos técnicos es de notificación OBLIGATORIA?",opts:["Desgaste normal de neumáticos","Defecto estructural en la aeronave","Consumo elevado de combustible dentro de parámetros","Cambio de aceite programado"],ans:1},
+  // P5 — sin cambios
+  {q:"Un suceso relacionado con el sistema ATM/ANS que debe notificarse obligatoriamente es:",opts:["Un retraso en la salida por saturación del espacio aéreo","Una situación en la que casi se produce una colisión (near-miss)","Una comunicación con acento difícil de entender","Un cambio de frecuencia solicitado por el controlador"],ans:1},
+  // P6 — ELIMINADA (aeródromo/pasajeros). Sustituida por pregunta de formación
+  {q:"En el contexto de la formación de pilotos en ONE AIR, ¿cuál de los siguientes es un suceso que debe notificarse obligatoriamente al SMS?",opts:["Un alumno suspende el examen teórico de navegación","Un fallo del motor durante una práctica de vuelo","Un instructor llega tarde a la sesión de briefing","El simulador presenta un error de software menor"],ans:1},
+  // P7 — cambiado: respuesta correcta pasa a "incidente grave"
+  {q:"Un suceso relacionado con el combustible en la operación de la aeronave:",opts:["Solo se notifica si causa un aterrizaje de emergencia o un incidente grave","Es siempre de notificación obligatoria","Se notifica únicamente si hay derrame visible","No es obligatorio si el instructor al mando lo considera menor"],ans:1},
+  // P8 — sin cambios
+  {q:"¿Qué tipo de reporte puede realizar un empleado para un suceso que NO es obligatorio pero considera relevante para la seguridad?",opts:["Reporte disciplinario","Reporte voluntario de seguridad","Reporte de calidad","Reporte de mantenimiento preventivo"],ans:1},
+  // P9 — ELIMINADA (meteorología confusa). Sustituida por pregunta clara de notificaciones
+  {q:"¿Qué característica debe tener el sistema de reporte de sucesos de ONE AIR para fomentar la notificación?",opts:["Público y con identificación obligatoria del responsable","Accesible, confidencial y no punitivo","Restringido a personal de seguridad","Exclusivo para pilotos e instructores"],ans:1},
+  // P10 — nueva: colisión en tierra (antes P15)
+  {q:"¿Cuál de los siguientes sucesos relacionados con colisiones es de notificación obligatoria?",opts:["Contacto leve entre aeronave y pasarela sin daños visibles","Colisión o situación en la que casi se produzca una colisión en plataforma","Roce de equipaje con el fuselaje durante la carga","Contacto entre vehículo de rampa y cono de señalización"],ans:1},
+  // --- BLOQUE 2: Sucesos, ERP y clasificación (5 preguntas) ---
+  // P11 — ELIMINADA (hélices/rotores/helicópteros). Sustituida por defecto estructural
+  {q:"Un defecto estructural descubierto durante la inspección de una aeronave ONE AIR:",opts:["Solo se notifica si impide el vuelo","Es un suceso de notificación obligatoria","Se registra internamente sin necesidad de notificación al SMS","Se comunica únicamente al fabricante"],ans:1},
+  // P12 — cambiado: ERP con "incidente grave" en la respuesta correcta
+  {q:"El ERP (Emergency Response Plan) de ONE AIR se activa ante:",opts:["Cualquier retraso de vuelo superior a 2 horas","Un accidente o incidente grave que afecte a aeronaves u ocupantes de ONE AIR","Cualquier queja formal de un alumno","Un fallo del sistema informático de gestión académica"],ans:1},
+  // P13 — ELIMINADA. Sustituida por pregunta sobre qué NO activa el ERP
+  {q:"¿Cuál de los siguientes NO es un supuesto de activación del ERP de ONE AIR?",opts:["Accidente de una aeronave de ONE AIR","Amenaza de bomba o secuestro de una aeronave de ONE AIR","Incidente grave que afecte a instructores o alumnos de ONE AIR","Retraso por condiciones de tráfico aéreo"],ans:3},
+  // --- BLOQUE 3: SMS, SSP y marco normativo (4 preguntas) ---
+  // P14 — SRB (antes P16)
+  {q:"¿Cuántas reuniones anuales realiza el Safety Review Board (SRB) de ONE AIR?",opts:["1","2","3","4"],ans:2},
+  // P15 — refresco (antes P18)
+  {q:"¿Con qué frecuencia se deben realizar los cursos de refresco de SMS en ONE AIR?",opts:["Cada 6 meses","Anualmente","Cada 2 años","Cada 3 años"],ans:1},
+  // P16 — nota mínima (antes P19) — ELIMINADA según imagen 4 (quitar_pregunta_1). Sustituida por SAG
+  {q:"El SAG (Safety Action Group) de ONE AIR se activa:",opts:["En todas las reuniones periódicas del SRB","Ante un suceso relevante que requiere análisis inmediato","Mensualmente junto con la revisión del Gestor de Seguridad","Solo cuando lo ordena la autoridad aeronáutica"],ans:1},
+  // P17 — componentes OACI (antes P29)
+  {q:"¿Cuántos componentes esenciales establece el marco OACI para estructurar un SMS?",opts:["2 — política y gestión de riesgos","3 — política, riesgos y auditoría","4 — política, gestión de riesgos, garantía y promoción","5 — incluyendo formación como componente independiente"],ans:2},
+  // --- BLOQUE 4: Cultura, riesgos y modelos (5 preguntas) ---
+  // P18 — SHELL
+  {q:"En el modelo SHELL, ¿qué representa la 'L' de Liveware?",opts:["Legislación aplicable","Factor humano — el personal operativo","Limitaciones técnicas de la aeronave","Lugar de trabajo"],ans:1},
+  // P19 — cultura justa
+  {q:"La 'cultura justa' en aviación implica que:",opts:["Nunca se sanciona a ningún empleado independientemente de su actuación","Se sanciona toda acción que cause un incidente","No se castiga por errores acordes a la experiencia y formación, pero sí la negligencia grave o actos intencionados","La responsabilidad recae exclusivamente en el último eslabón de la cadena"],ans:2},
+  // P20 — matriz tolerabilidad
+  {q:"En la matriz de tolerabilidad del SMS, los riesgos clasificados como 5A, 5B, 5C, 4A, 4B y 3A son:",opts:["Aceptables — se puede operar con normalidad","Tolerables — requieren una decisión de gestión","Intolerables — inaceptables según las circunstancias existentes","Pendientes de evaluación por el SRB"],ans:2},
+  // P21 — peligro
+  {q:"¿Qué es un 'peligro' en el contexto del SMS?",opts:["La probabilidad de que ocurra un accidente","Una condición, objeto o actividad que puede causar daño potencial","El resultado de un accidente ya ocurrido","Un error humano que desencadena un incidente"],ans:1},
+  // P22 — queso suizo (antes P25) — se añade imagen en módulo, pregunta se mantiene
+  {q:"El modelo de causalidad de James Reason (queso suizo) explica que los accidentes se producen cuando:",opts:["Un único error humano supera todos los controles","Los fallos en múltiples capas defensivas se alinean simultáneamente","Las condiciones meteorológicas son extremadamente adversas","El piloto al mando toma una decisión incorrecta"],ans:1},
+  // --- BLOQUE 5: Política, organización e investigación (3 preguntas) ---
+  // P23 — política ONE AIR
+  {q:"Según la política de seguridad de ONE AIR, ¿cuál de estas afirmaciones es correcta?",opts:["La seguridad puede comprometerse si existen razones económicas justificadas","La seguridad es responsabilidad exclusiva del Responsable de Seguridad","La seguridad operacional primará siempre sobre aspectos económicos o comerciales","El Director Responsable puede eximir al personal del cumplimiento de normas de seguridad"],ans:2},
+  // P24 — investigación (antes P27) — reformulada SIN nombrar CIAIAC
+  {q:"En caso de accidente de aviación en España, ¿qué tipo de investigación realizará ONE AIR de forma complementaria a la oficial del Estado?",opts:["No realizará ninguna investigación propia, dejará todo en manos del Estado","Una investigación interna paralela para detectar fallos propios y adoptar medidas inmediatas","Una investigación exclusivamente económica para evaluar los daños materiales","Una auditoría externa contratada a una empresa especializada en seguros"],ans:1},
+  // P25 — informe final de investigación (antes P30) — se mantiene, P28 eliminada
+  {q:"Al finalizar la investigación interna de un accidente o incidente grave en ONE AIR, el informe se entrega a:",opts:["La autoridad aeronáutica para su publicación oficial","El Ministerio de Transportes directamente","La Junta de Revisión de Seguridad Operacional para su análisis y adopción de medidas","El piloto o instructor implicado en el suceso"],ans:2}
+];
+
+let state={user:{name:'',dni:'',role:'',email:'',date:''},completed:new Array(9).fill(false),curMod:0,curSlide:0,examAnswers:{},examDone:false,examTimedOut:false};
+const EXAM_DURATION_SECONDS=60*60;
+let examTimerInterval=null;
+let examRemainingSeconds=EXAM_DURATION_SECONDS;
+let examQuestions=[];
+
+function shuffleArray(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildShuffledExam(){
+  const shuffledQ=shuffleArray(QUESTIONS);
+  return shuffledQ.map(q=>{
+    const optIndices=shuffleArray(q.opts.map((_,i)=>i));
+    return{
+      q:q.q,
+      opts:optIndices.map(i=>q.opts[i]),
+      ans:optIndices.indexOf(q.ans)
+    };
+  });
+}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);const timerEl=document.getElementById('exam-timer');if(timerEl)timerEl.style.display=(id==='screen-exam')?'inline-block':'none';}
+
+function startCourse(){
+  const name=document.getElementById('reg-name').value.trim();
+  const dni=document.getElementById('reg-dni').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const err=document.getElementById('reg-error');
+  if(!name||!dni||!email){err.style.display='block';err.textContent='Por favor, completa los campos obligatorios: Nombre, NIF y Correo.';return;}
+  err.style.display='none';
+  state.user={name,dni,role:document.getElementById('reg-role').value.trim(),email,date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})};
+  renderIndex();showScreen('screen-index');
+}
+
+function renderIndex(){
+  const done=state.completed.filter(Boolean).length;
+  document.getElementById('index-user').textContent=state.user.name+(state.user.role?' — '+state.user.role:'');
+  document.getElementById('index-progress-text').textContent=done+' de 9 módulos completados';
+  document.getElementById('index-progress-fill').style.width=Math.round(done/9*100)+'%';
+  const list=document.getElementById('modules-list');list.innerHTML='';
+  MODULES.forEach((m,i)=>{
+    const isDone=state.completed[i];
+    const d=document.createElement('div');d.className='mod-item'+(isDone?' done':'');
+    d.innerHTML=`<div class="mod-num ${isDone?'done':''}">${isDone?'✓':(i+1)}</div><div class="mod-info"><div class="mod-title">${m.title}</div><div class="mod-sub">${m.slides.length} diapositivas</div></div><span class="badge ${isDone?'done':''}">${isDone?'Completado':'Pendiente'}</span>`;
+    d.onclick=()=>openModule(i);list.appendChild(d);
+  });
+  const ea=document.getElementById('exam-btn-area');
+  if(done===9){ea.innerHTML='<div class="exam-unlock"><p>Has completado todos los módulos. Ya puedes realizar el examen final.</p><button class="btn" style="background:white;color:var(--navy);border-color:white;font-weight:600;" onclick="startExam()">Realizar examen final →</button></div>';}
+  else{ea.innerHTML=`<div class="pending-bar">Completa todos los módulos para desbloquear el examen final (${done}/9)</div>`;}
+}
+
+function openModule(idx){state.curMod=idx;state.curSlide=0;renderModule();showScreen('screen-module');}
+
+function renderModule(){
+  const m=MODULES[state.curMod];const s=m.slides[state.curSlide];
+  document.getElementById('mod-title').textContent='Módulo '+(state.curMod+1)+': '+m.title;
+  document.getElementById('mod-subtitle').textContent='Diapositiva '+(state.curSlide+1)+' de '+m.slides.length+' — '+s.title;
+  const pct=m.slides.length>1?Math.round(state.curSlide/(m.slides.length-1)*100):100;
+  document.getElementById('mod-progress-fill').style.width=(state.curSlide===m.slides.length-1?100:pct)+'%';
+  const area=document.getElementById('slide-area');
+  const dots=m.slides.map((_,i)=>`<div class="dot ${i<state.curSlide?'done':''} ${i===state.curSlide?'active':''}"></div>`).join('');
+  const prev=state.curSlide>0?`<button class="btn" onclick="prevSlide()">← Anterior</button>`:`<button class="btn" disabled>← Anterior</button>`;
+  const next=state.curSlide<m.slides.length-1?`<button class="btn btn-primary" onclick="nextSlide()">Siguiente →</button>`:`<button class="btn btn-success" onclick="completeModule()">Módulo completado ✓</button>`;
+  area.innerHTML=`<div class="slide-content">${s.content()}</div><div class="slide-nav">${prev}<div class="slide-dots">${dots}</div>${next}</div>`;
+}
+
+function nextSlide(){if(state.curSlide<MODULES[state.curMod].slides.length-1){state.curSlide++;renderModule();}}
+function prevSlide(){if(state.curSlide>0){state.curSlide--;renderModule();}}
+function completeModule(){state.completed[state.curMod]=true;renderIndex();showScreen('screen-index');}
+
+function startExam(){
+  state.examAnswers={};state.examDone=false;state.examTimedOut=false;
+  examQuestions=buildShuffledExam();
+  renderExam();showScreen('screen-exam');
+  startExamTimer();
+}
+
+function backToIndexFromExam(){stopExamTimer();showScreen('screen-index');}
+
+function startExamTimer(){
+  stopExamTimer();
+  examRemainingSeconds=EXAM_DURATION_SECONDS;
+  updateExamTimerDisplay();
+  examTimerInterval=setInterval(()=>{
+    examRemainingSeconds--;
+    updateExamTimerDisplay();
+    if(examRemainingSeconds<=0){
+      stopExamTimer();
+      if(!state.examDone){
+        state.examTimedOut=true;
+        submitExam();
+      }
+    }
+  },1000);
+}
+
+function stopExamTimer(){
+  if(examTimerInterval){clearInterval(examTimerInterval);examTimerInterval=null;}
+}
+
+function updateExamTimerDisplay(){
+  const el=document.getElementById('exam-timer');
+  if(!el)return;
+  const m=Math.floor(Math.max(examRemainingSeconds,0)/60);
+  const s=Math.max(examRemainingSeconds,0)%60;
+  el.textContent='⏱ '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if(examRemainingSeconds<=60){
+    el.style.color='white';
+    el.style.background='var(--red)';
+    el.style.borderColor='rgba(255,255,255,0.3)';
+  }else{
+    el.style.color='white';
+    el.style.background='var(--navy)';
+    el.style.borderColor='rgba(255,255,255,0.25)';
+  }
+}
+
+function renderExam(){
+  const area=document.getElementById('exam-area');area.innerHTML='';
+  examQuestions.forEach((q,qi)=>{
+    const card=document.createElement('div');card.className='card';
+    card.innerHTML=`<div class="q-num">Pregunta ${qi+1} de ${examQuestions.length}</div><p style="font-size:14px;font-weight:500;margin-bottom:10px;line-height:1.5;">${q.q}</p>`;
+    q.opts.forEach((opt,oi)=>{
+      const d=document.createElement('div');
+      let cls='quiz-option';
+      if(state.examDone){if(oi===q.ans)cls+=' correct';else if(state.examAnswers[qi]===oi&&oi!==q.ans)cls+=' wrong';}
+      else if(state.examAnswers[qi]===oi)cls+=' selected';
+      d.className=cls;
+      d.innerHTML=`<input type="radio" name="q${qi}" ${state.examAnswers[qi]===oi?'checked':''} ${state.examDone?'disabled':''}><span style="font-size:13px;">${opt}</span>`;
+      if(!state.examDone)d.onclick=()=>{state.examAnswers[qi]=oi;renderExam();};
+      card.appendChild(d);
+    });
+    area.appendChild(card);
+  });
+  const answered=Object.keys(state.examAnswers).length;
+  document.getElementById('exam-progress-fill').style.width=Math.round(answered/examQuestions.length*100)+'%';
+  const btnArea=document.createElement('div');btnArea.style.cssText='text-align:center;margin:1rem 0 2rem;';
+  if(!state.examDone){
+    if(answered<examQuestions.length){btnArea.innerHTML=`<p style="font-size:13px;color:var(--text3);margin-bottom:8px;">Responde todas las preguntas (${answered}/${examQuestions.length})</p><button class="btn" disabled>Enviar examen</button>`;}
+    else{btnArea.innerHTML=`<button class="btn btn-primary" onclick="submitExam()">Enviar examen →</button>`;}
+  }
+  area.appendChild(btnArea);
+}
+
+function submitExam(){
+  stopExamTimer();
+  state.examDone=true;
+  let correct=0;
+  examQuestions.forEach((q,i)=>{if(state.examAnswers[i]===q.ans)correct++;});
+  const score=Math.round(correct/examQuestions.length*100);
+  if(score>=75&&!state.examTimedOut){showCertificate(correct,score);}
+  else{
+    const failHdr=document.querySelector('#screen-fail .fail-hdr h1');
+    const failSub=document.querySelector('#screen-fail .fail-hdr p');
+    if(state.examTimedOut){
+      failHdr.textContent='Examen no válido';
+      failSub.textContent='Se ha agotado el tiempo máximo de 60 minutos. El examen no es válido.';
+      document.getElementById('fail-score').textContent='Tiempo agotado — '+score+'% ('+correct+' de '+examQuestions.length+' respuestas correctas)';
+    }else{
+      failHdr.textContent='Evaluación no superada';
+      failSub.textContent='No has alcanzado el 75% mínimo requerido';
+      document.getElementById('fail-score').textContent=score+'% — '+correct+' de '+examQuestions.length+' respuestas correctas';
+    }
+    renderExam();
+    const fr=document.getElementById('fail-review');
+    fr.innerHTML='<div class="card"><h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">Preguntas falladas — respuestas correctas:</h3>'+
+      examQuestions.map((q,i)=>state.examAnswers[i]!==q.ans?`<div class="key-point"><span class="kp-icon" style="color:var(--red);">✗</span><span style="font-size:13px;">Pregunta ${i+1}: ${q.q}<br><em style="color:var(--green);">Correcto: ${q.opts[q.ans]}</em></span></div>`:'').join('')+'</div>';
+    showScreen('screen-fail');
+  }
+}
+
+function showCertificate(correct,score){
+  const now=new Date();
+  const fmt={day:'2-digit',month:'2-digit',year:'numeric'};
+  const dateStr=now.toLocaleDateString('es-ES',fmt);
+  const certNum='ONE-SMS-'+now.getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  const nextYear=new Date(now);nextYear.setFullYear(nextYear.getFullYear()+1);
+  document.getElementById('cert-name').textContent=state.user.name;
+  document.getElementById('cert-role').textContent=(state.user.role||'Personal ONE AIR')+(state.user.dni?' · NIF: '+state.user.dni:'');
+  document.getElementById('cert-score').textContent=score+'%';
+  document.getElementById('cert-date').textContent=dateStr;
+  document.getElementById('cert-num').textContent=certNum;
+  document.getElementById('cert-next').textContent=nextYear.toLocaleDateString('es-ES',fmt);
+  document.getElementById('ans-subtitle').textContent=state.user.name+' · '+dateStr+' · Nº '+certNum;
+  // hoja de respuestas
+  const wrong=examQuestions.length-correct;
+  document.getElementById('ans-correct').textContent=correct;
+  document.getElementById('ans-wrong').textContent=wrong;
+  document.getElementById('ans-score2').textContent=score+'%';
+  const grid=document.getElementById('ans-grid');grid.innerHTML='';
+  examQuestions.forEach((q,i)=>{
+    const isOk=state.examAnswers[i]===q.ans;
+    const div=document.createElement('div');div.className='ans-item '+(isOk?'correct':'wrong');
+    div.innerHTML=`<span class="ans-q-num">P${i+1}</span><div class="ans-content"><div class="aq">${q.q}</div><div class="${isOk?'aa':'au'}">${isOk?'✓ '+q.opts[q.ans]:'✗ '+q.opts[state.examAnswers[i]]+'<br><span style="color:var(--green);">✓ '+q.opts[q.ans]+'</span>'}</div></div><span class="ans-icon">${isOk?'✅':'❌'}</span>`;
+    grid.appendChild(div);
+  });
+  showScreen('screen-cert');
+}
+
+document.getElementById('reg-date-display').textContent = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+</script>
+</body>
+</html>
