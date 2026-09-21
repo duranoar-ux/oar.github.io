@@ -176,9 +176,62 @@
     .no-print { display: none !important; }
     .ans-item.correct, .ans-item.wrong { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   }
+
+  /* ===== RESPONSIVE + CLOCKS ===== */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  body { overflow-wrap: break-word; }
+  .mod-info { min-width: 0; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
+  .table-wrap .matrix { margin-top: 0; min-width: 460px; }
+  .clock { display: none; position: fixed; top: 16px; right: 16px; z-index: 1000; text-align: center; font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 600; color: #fff; background: var(--navy); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 7px 18px; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(15,39,68,0.35); white-space: nowrap; }
+  .clock.warn { background: var(--red); border-color: rgba(255,255,255,0.3); }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 20px); width: max-content; max-width: min(92vw, 420px); background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 20px rgba(15,39,68,0.35); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 1001; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  @media (max-width: 960px) {
+    body.has-clock .app { padding-top: 4rem; }
+  }
+  @media (max-width: 560px) {
+    .app { padding: 1rem 0.75rem 2.5rem; }
+    body.has-clock .app { padding-top: 3.5rem; }
+    .clock { top: 10px; right: 10px; font-size: 13px; padding: 5px 12px; }
+    .hdr { padding: 1.1rem; }
+    .hdr h1 { font-size: 17px; }
+    .hdr-brand { flex-wrap: wrap; gap: 10px; }
+    .hdr-divider { display: none; }
+    .card, .card-soft { padding: 1rem; }
+    .slide-h { font-size: 16px; }
+    .slide-content { min-height: 0; }
+    .btn { padding: 10px 14px; min-height: 42px; justify-content: center; }
+    .btn-back { min-height: 0; padding: 7px 12px; }
+    .slide-nav { flex-wrap: wrap; gap: 10px; }
+    .slide-dots { order: -1; width: 100%; justify-content: center; flex-wrap: wrap; }
+    .slide-nav .btn { flex: 1; }
+    .mod-item { padding: 12px; gap: 10px; }
+    .badge { white-space: nowrap; }
+    .fg input { font-size: 16px; }
+    .reg-stats { gap: 1rem 1.5rem; }
+    .cert-logo-row { flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
+    .cert-logo { height: 44px; }
+    .cert-logo-oat { height: 34px; }
+    .cert-logo-row img[style*="height"] { height: auto !important; max-height: 64px; }
+    .cert-brand { text-align: left; }
+    .cert-title-block h1 { font-size: 18px; }
+    .cert-legal-row { gap: 12px; }
+    .ans-hdr { padding: 1rem 1.1rem; gap: 12px; }
+    .ans-body { padding: 1rem; }
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 380px) {
+    .cert-meta-cell { min-width: 100%; }
+    .cert-recipient .name { font-size: 20px; }
+    .stat-num { font-size: 18px; }
+  }
+  @media print { .clock, .toast { display: none !important; } }
 </style>
 </head>
 <body>
+<div id="course-timer" class="clock">⏱ Course 60:00</div>
 <div class="app">
 
 <!-- REGISTRATION -->
@@ -245,8 +298,9 @@
   <div class="hdr">
     <div class="hdr-row">
       <div><h1>Final assessment</h1><p>25 questions — you need at least 19 correct answers (75%) to pass</p></div>
-      <button class="btn btn-back" onclick="showScreen('screen-index')">← Index</button>
+      <button class="btn btn-back" onclick="backToIndexFromExam()">← Index</button>
     </div>
+    <div id="exam-timer" class="clock">⏱ 30:00</div>
     <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
   </div>
   <div id="exam-area"></div>
@@ -325,7 +379,7 @@
     </div>
     <div class="ans-body">
       <div class="ans-grid" id="ans-grid"></div>
-      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray2);display:flex;gap:1.5rem;font-size:13px;color:var(--text2);">
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray2);display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font-size:13px;color:var(--text2);">
         <span>✅ Correct: <strong id="ans-correct" style="color:var(--green);"></strong></span>
         <span>❌ Incorrect: <strong id="ans-wrong" style="color:var(--red);"></strong></span>
         <span>Score: <strong id="ans-score2" style="color:var(--navy);font-family:'DM Mono',monospace;"></strong></span>
@@ -382,7 +436,7 @@ function s3_1(){return`<span class="section-tag">Module 4 · Types</span><h2 cla
 function s4_0(){return`<span class="section-tag">Module 5 · Risk</span><h2 class="slide-h">Risk = Probability × Severity</h2><div class="two-col" style="margin-bottom:12px;"><div class="info-box" style="border-left:3px solid var(--red);"><h4>Hazard</h4><p>A condition, object or activity that can cause potential harm. It is the source of the problem.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>Risk</h4><p>The combination of the <strong>probability</strong> of the hazardous event occurring and the <strong>severity</strong> of its consequences.</p></div></div><div class="note-box"><strong>Aviation example:</strong> Hazard → Pilot fatigue. Risk → Probability that fatigue causes a wrong decision during flight × severity of the potential resulting accident.</div>`;}
 function s4_1(){return`<span class="section-tag">Module 5 · Process</span><h2 class="slide-h">Risk management process</h2><div style="display:flex;flex-direction:column;gap:7px;">${[['1','Hazard identification','Recognize possible sources of harm in the organization\'s activities.','#0f2744'],['2','Risk assessment','Analyze the probability of the incident occurring and the severity of its consequences.','#1a3a5c'],['3','Risk mitigation','Develop and implement strategies to reduce the identified probability or impact.','#2d6a9f'],['4','Implement controls','Put the agreed mitigation measures into practice and assign responsibilities.','#1976d2'],['5','Monitor and evaluate','Continuous monitoring of the effectiveness of the measures and adjustments when necessary.','#0288d1']].map(([n,t,d,c])=>`<div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:26px;height:26px;border-radius:50%;background:${c};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'DM Mono',monospace;">${n}</div><div class="info-box" style="flex:1;padding:8px 11px;"><h4 style="font-size:13px;">${t}</h4><p style="font-size:12px;">${d}</p></div></div>`).join('')}`;}
 function s4_2(){return`<span class="section-tag">Module 5 · Hazard reporting</span><h2 class="slide-h">How to report a hazard at ONE AIR</h2><div style="display:grid;gap:8px;margin-bottom:12px;"><div class="info-box" style="border-left:3px solid var(--navy);"><h4>Where to report?</h4><p>Email: <strong>seguridad@oneair.es</strong> — A printed Operational Safety Report form is also available.</p></div><div class="info-box" style="border-left:3px solid var(--green);"><h4>When to report?</h4><p>Within <strong>72 hours</strong> of becoming aware of the event.</p></div><div class="info-box" style="border-left:3px solid var(--amber);"><h4>What to include?</h4><p>Description of the event, how to avoid it, date, location, name (optional) and a proposed improvement.</p></div></div><div class="note-box">All reports are <strong>confidential</strong>. The information will not be used for punitive measures, only to improve operational safety.</div>`;}
-function s5_0(){return`<span class="section-tag">Module 6 · Matrix</span><h2 class="slide-h">Operational risk assessment matrix</h2><table class="matrix"><tr><th rowspan="2">Probability</th><th colspan="5">Severity</th></tr><tr><th>Catastrophic (A)</th><th>Hazardous (B)</th><th>Major (C)</th><th>Minor (D)</th><th>Negligible (E)</th></tr><tr><th>Frequent (5)</th><td class="risk-r">5A</td><td class="risk-r">5B</td><td class="risk-r">5C</td><td class="risk-y">5D</td><td class="risk-y">5E</td></tr><tr><th>Occasional (4)</th><td class="risk-r">4A</td><td class="risk-r">4B</td><td class="risk-y">4C</td><td class="risk-y">4D</td><td class="risk-y">4E</td></tr><tr><th>Remote (3)</th><td class="risk-r">3A</td><td class="risk-y">3B</td><td class="risk-y">3C</td><td class="risk-g">3D</td><td class="risk-g">3E</td></tr><tr><th>Improbable (2)</th><td class="risk-y">2A</td><td class="risk-y">2B</td><td class="risk-y">2C</td><td class="risk-g">2D</td><td class="risk-g">2E</td></tr><tr><th>Extremely improbable (1)</th><td class="risk-y">1A</td><td class="risk-g">1B</td><td class="risk-g">1C</td><td class="risk-g">1D</td><td class="risk-g">1E</td></tr></table><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><span style="background:#fee2e2;color:#b91c1c;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🔴 Intolerable: 5A, 5B, 5C, 4A, 4B, 3A</span><span style="background:#fef9c3;color:#92400e;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟡 Tolerable: requires a management decision</span><span style="background:#dcfce7;color:#166534;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟢 Acceptable</span></div>`;}
+function s5_0(){return`<span class="section-tag">Module 6 · Matrix</span><h2 class="slide-h">Operational risk assessment matrix</h2><table class="matrix"><tr><th rowspan="2">Probability</th><th colspan="5">Severity</th></tr><tr><th>Catastrophic (A)</th><th>Hazardous (B)</th><th>Major (C)</th><th>Minor (D)</th><th>Negligible (E)</th></tr><tr><th>Frequent (5)</th><td class="risk-r">5A</td><td class="risk-r">5B</td><td class="risk-r">5C</td><td class="risk-y">5D</td><td class="risk-y">5E</td></tr><tr><th>Occasional (4)</th><td class="risk-r">4A</td><td class="risk-r">4B</td><td class="risk-y">4C</td><td class="risk-y">4D</td><td class="risk-y">4E</td></tr><tr><th>Remote (3)</th><td class="risk-r">3A</td><td class="risk-y">3B</td><td class="risk-y">3C</td><td class="risk-y">3D</td><td class="risk-g">3E</td></tr><tr><th>Improbable (2)</th><td class="risk-y">2A</td><td class="risk-y">2B</td><td class="risk-y">2C</td><td class="risk-g">2D</td><td class="risk-g">2E</td></tr><tr><th>Extremely improbable (1)</th><td class="risk-y">1A</td><td class="risk-g">1B</td><td class="risk-g">1C</td><td class="risk-g">1D</td><td class="risk-g">1E</td></tr></table><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><span style="background:#fee2e2;color:#b91c1c;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🔴 Intolerable: 5A, 5B, 5C, 4A, 4B, 3A</span><span style="background:#fef9c3;color:#92400e;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟡 Tolerable: requires a management decision</span><span style="background:#dcfce7;color:#166534;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;">🟢 Acceptable</span></div>`;}
 function s5_1(){return`<span class="section-tag">Module 6 · Monitoring</span><h2 class="slide-h">Monitoring, audits and continuous improvement</h2><div class="key-point"><span class="kp-icon">▶</span><span>The <strong>Safety Manager</strong> performs <strong>monthly</strong> reviews of each mitigation measure and determines its effectiveness.</span></div><div class="key-point"><span class="kp-icon">▶</span><span><strong>Annual internal audits</strong> of the Management System are carried out to verify compliance with the objectives of the Management Manual.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>The <strong>SRB (Safety Review Board)</strong> meets <strong>3 times a year</strong> to review safety indicators at management level.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>The <strong>SAG (Safety Action Group)</strong> is activated in response to a relevant event to analyze causes and define measures.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Continuous improvement is achieved through process review and the implementation of <strong>corrective and preventive actions</strong>.</span></div>`;}
 function s6_0(){return`<span class="section-tag">Module 7 · Reporting</span><h2 class="slide-h">Incident reporting procedure</h2><div class="two-col" style="margin-bottom:10px;"><div class="info-box" style="border-left:3px solid var(--navy);"><h4>Mandatory reportable occurrences</h4><p>Collisions, takeoff/landing, fuel, communication, weather conditions, crew incapacitation, structural defects, failures, propulsion, ATM/ANS, aerodrome activities.</p></div><div class="info-box" style="border-left:3px solid var(--green);"><h4>How and when to report</h4><p>📧 <strong>seguridad@oneair.es</strong><br>⏱ Deadline: <strong>72 hours</strong> from becoming aware<br>🔒 Nature: <strong>Confidential</strong></p></div></div><div class="note-box">In addition to mandatory reporting, there is a <strong>voluntary reporting</strong> system for events that are not mandatory but that the employee considers relevant to operational safety.</div>`;}
 function s6_1(){return`<span class="section-tag">Module 7 · Investigation</span><h2 class="slide-h">Accident and incident investigation</h2><div class="key-point"><span class="kp-icon">▶</span><span>In the event of a serious accident, the relevant State will carry out an official investigation. ONE AIR will carry out a <strong>parallel investigation</strong> to detect internal failures and take immediate action.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>ONE AIR will appoint a <strong>representative</strong> to take part in the relevant State's official investigation.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Reference guide: <strong>ICAO Annex 13</strong> — Aircraft Accident and Incident Investigation.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>At the conclusion, a report will be issued to the <strong>Operational Safety Review Board</strong> with preventive, corrective or mitigating measures.</span></div><div class="key-point"><span class="kp-icon">▶</span><span>Information derived from the investigation will be disseminated to all ONE AIR employees through special bulletins.</span></div>`;}
@@ -449,9 +503,91 @@ const QUESTIONS = [
   {q:"At the conclusion of the internal investigation into an accident or serious incident at ONE AIR, the report is submitted to:",opts:["The aviation authority for official publication","The Ministry of Transport directly","The Operational Safety Review Board for analysis and adoption of measures","The pilot or instructor involved in the occurrence"],ans:2}
 ];
 
-let state={user:{name:'',dni:'',role:'',email:'',date:''},completed:new Array(9).fill(false),curMod:0,curSlide:0,examAnswers:{},examDone:false};
+let state={user:{name:'',dni:'',role:'',email:'',date:''},completed:new Array(9).fill(false),curMod:0,curSlide:0,examAnswers:{},examDone:false,examTimedOut:false};
+const EXAM_DURATION_SECONDS=30*60;
+const COURSE_DURATION_SECONDS=60*60;
+let examTimerInterval=null;
+let examRemainingSeconds=EXAM_DURATION_SECONDS;
+let examEndsAt=0;
+let courseTimerInterval=null;
+let courseClockOn=false;
+let courseEndsAt=0;
+let examQuestions=[];
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function fmtClock(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');}
+
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');t.onclick=()=>t.classList.remove('show');document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('show'),10000);
+}
+
+// Course clock: 60 min, starts when the participant starts the course, stops when the exam starts
+function startCourseTimer(){
+  stopCourseTimer();
+  courseClockOn=true;
+  courseEndsAt=Date.now()+COURSE_DURATION_SECONDS*1000;
+  tickCourseTimer();
+  courseTimerInterval=setInterval(tickCourseTimer,1000);
+}
+function stopCourseTimer(){
+  if(courseTimerInterval){clearInterval(courseTimerInterval);courseTimerInterval=null;}
+  courseClockOn=false;
+}
+function tickCourseTimer(){
+  const left=Math.max(0,Math.ceil((courseEndsAt-Date.now())/1000));
+  const el=document.getElementById('course-timer');
+  if(el){el.textContent='⏱ Course '+fmtClock(left);el.classList.toggle('warn',left<=60);}
+  if(left<=0&&courseTimerInterval){
+    clearInterval(courseTimerInterval);courseTimerInterval=null;
+    showToast('Course time is up (60 min).');
+  }
+}
+
+// Exam clock: 30 min
+function startExamTimer(){
+  stopExamTimer();
+  examEndsAt=Date.now()+EXAM_DURATION_SECONDS*1000;
+  tickExamTimer();
+  examTimerInterval=setInterval(tickExamTimer,1000);
+}
+function tickExamTimer(){
+  examRemainingSeconds=Math.max(0,Math.ceil((examEndsAt-Date.now())/1000));
+  updateExamTimerDisplay();
+  if(examRemainingSeconds<=0){
+    stopExamTimer();
+    if(!state.examDone){
+      state.examTimedOut=true;
+      submitExam();
+    }
+  }
+}
+function stopExamTimer(){
+  if(examTimerInterval){clearInterval(examTimerInterval);examTimerInterval=null;}
+}
+function updateExamTimerDisplay(){
+  const el=document.getElementById('exam-timer');
+  if(!el)return;
+  el.textContent='⏱ '+fmtClock(Math.max(examRemainingSeconds,0));
+  el.classList.toggle('warn',examRemainingSeconds<=60);
+}
+// Phones pause timers when the tab is in the background: resync on return
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  if(examTimerInterval)tickExamTimer();
+  if(courseTimerInterval)tickCourseTimer();
+});
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);if(id==='screen-register')stopCourseTimer();updateClockVisibility(id);}
+function updateClockVisibility(id){
+  const ex=document.getElementById('exam-timer'),co=document.getElementById('course-timer');
+  const showExam=id==='screen-exam';
+  const showCourse=courseClockOn&&(id==='screen-index'||id==='screen-module');
+  if(ex)ex.style.display=showExam?'inline-block':'none';
+  if(co)co.style.display=showCourse?'inline-block':'none';
+  document.body.classList.toggle('has-clock',showExam||showCourse);
+}
 
 function startCourse(){
   const name=document.getElementById('reg-name').value.trim();
@@ -461,7 +597,7 @@ function startCourse(){
   if(!name||!dni||!email){err.style.display='block';err.textContent='Please complete the required fields: Name, ID No. and Email.';return;}
   err.style.display='none';
   state.user={name,dni,role:document.getElementById('reg-role').value.trim(),email,date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'})};
-  renderIndex();showScreen('screen-index');
+  startCourseTimer();renderIndex();showScreen('screen-index');
 }
 
 function renderIndex(){
@@ -494,13 +630,21 @@ function renderModule(){
   const prev=state.curSlide>0?`<button class="btn" onclick="prevSlide()">← Previous</button>`:`<button class="btn" disabled>← Previous</button>`;
   const next=state.curSlide<m.slides.length-1?`<button class="btn btn-primary" onclick="nextSlide()">Next →</button>`:`<button class="btn btn-success" onclick="completeModule()">Module completed ✓</button>`;
   area.innerHTML=`<div class="slide-content">${s.content()}</div><div class="slide-nav">${prev}<div class="slide-dots">${dots}</div>${next}</div>`;
+  area.querySelectorAll('table.matrix').forEach(t=>{const w=document.createElement('div');w.className='table-wrap';t.parentNode.insertBefore(w,t);w.appendChild(t);});
 }
 
 function nextSlide(){if(state.curSlide<MODULES[state.curMod].slides.length-1){state.curSlide++;renderModule();}}
 function prevSlide(){if(state.curSlide>0){state.curSlide--;renderModule();}}
 function completeModule(){state.completed[state.curMod]=true;renderIndex();showScreen('screen-index');}
 
-function startExam(){state.examAnswers={};state.examDone=false;renderExam();showScreen('screen-exam');}
+function startExam(){
+  stopCourseTimer();
+  state.examAnswers={};state.examDone=false;state.examTimedOut=false;
+  renderExam();showScreen('screen-exam');
+  startExamTimer();
+}
+
+function backToIndexFromExam(){stopExamTimer();showScreen('screen-index');}
 
 function renderExam(){
   const area=document.getElementById('exam-area');area.innerHTML='';
@@ -530,13 +674,24 @@ function renderExam(){
 }
 
 function submitExam(){
+  stopExamTimer();
   state.examDone=true;
   let correct=0;
   QUESTIONS.forEach((q,i)=>{if(state.examAnswers[i]===q.ans)correct++;});
   const score=Math.round(correct/QUESTIONS.length*100);
-  if(score>=75){showCertificate(correct,score);}
+  if(score>=75&&!state.examTimedOut){showCertificate(correct,score);}
   else{
-    document.getElementById('fail-score').textContent=score+'% — '+correct+' out of '+QUESTIONS.length+' correct answers';
+    const failHdr=document.querySelector('#screen-fail .fail-hdr h1');
+    const failSub=document.querySelector('#screen-fail .fail-hdr p');
+    if(state.examTimedOut){
+      failHdr.textContent='Exam not valid';
+      failSub.textContent='The maximum time of '+(EXAM_DURATION_SECONDS/60)+' minutes has run out. The exam is not valid.';
+      document.getElementById('fail-score').textContent='Time\'s up — '+score+'% ('+correct+' out of '+QUESTIONS.length+' correct answers)';
+    }else{
+      failHdr.textContent='Assessment not passed';
+      failSub.textContent='You have not reached the required minimum of 75%';
+      document.getElementById('fail-score').textContent=score+'% — '+correct+' out of '+QUESTIONS.length+' correct answers';
+    }
     try{
       renderExam();
       const fr=document.getElementById('fail-review');

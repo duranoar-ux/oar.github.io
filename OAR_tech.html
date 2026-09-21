@@ -181,9 +181,62 @@
     .no-print { display: none !important; }
     .ans-item.correct, .ans-item.wrong { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   }
+
+  /* ===== RESPONSIVE + CLOCKS ===== */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  body { overflow-wrap: break-word; }
+  .mod-info { min-width: 0; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
+  .table-wrap .matrix { margin-top: 0; min-width: 460px; }
+  .clock { display: none; position: fixed; top: 16px; right: 16px; z-index: 1000; text-align: center; font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 600; color: #fff; background: var(--navy); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 7px 18px; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(15,39,68,0.35); white-space: nowrap; }
+  .clock.warn { background: var(--red); border-color: rgba(255,255,255,0.3); }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 20px); width: max-content; max-width: min(92vw, 420px); background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 20px rgba(15,39,68,0.35); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 1001; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  @media (max-width: 960px) {
+    body.has-clock .app { padding-top: 4rem; }
+  }
+  @media (max-width: 560px) {
+    .app { padding: 1rem 0.75rem 2.5rem; }
+    body.has-clock .app { padding-top: 3.5rem; }
+    .clock { top: 10px; right: 10px; font-size: 13px; padding: 5px 12px; }
+    .hdr { padding: 1.1rem; }
+    .hdr h1 { font-size: 17px; }
+    .hdr-brand { flex-wrap: wrap; gap: 10px; }
+    .hdr-divider { display: none; }
+    .card, .card-soft { padding: 1rem; }
+    .slide-h { font-size: 16px; }
+    .slide-content { min-height: 0; }
+    .btn { padding: 10px 14px; min-height: 42px; justify-content: center; }
+    .btn-back { min-height: 0; padding: 7px 12px; }
+    .slide-nav { flex-wrap: wrap; gap: 10px; }
+    .slide-dots { order: -1; width: 100%; justify-content: center; flex-wrap: wrap; }
+    .slide-nav .btn { flex: 1; }
+    .mod-item { padding: 12px; gap: 10px; }
+    .badge { white-space: nowrap; }
+    .fg input { font-size: 16px; }
+    .reg-stats { gap: 1rem 1.5rem; }
+    .cert-logo-row { flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
+    .cert-logo { height: 44px; }
+    .cert-logo-oat { height: 34px; }
+    .cert-logo-row img[style*="height"] { height: auto !important; max-height: 64px; }
+    .cert-brand { text-align: left; }
+    .cert-title-block h1 { font-size: 18px; }
+    .cert-legal-row { gap: 12px; }
+    .ans-hdr { padding: 1rem 1.1rem; gap: 12px; }
+    .ans-body { padding: 1rem; }
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 380px) {
+    .cert-meta-cell { min-width: 100%; }
+    .cert-recipient .name { font-size: 20px; }
+    .stat-num { font-size: 18px; }
+  }
+  @media print { .clock, .toast { display: none !important; } }
 </style>
 </head>
 <body>
+<div id="course-timer" class="clock">⏱ Curso 60:00</div>
 <div class="app">
 
 <!-- REGISTRO -->
@@ -260,7 +313,7 @@
       <div><h1>Evaluación final</h1><p>25 preguntas — necesitas al menos 19 respuestas correctas (75%) para aprobar</p></div>
       <button class="btn btn-back" onclick="backToIndexFromExam()">← Índice</button>
     </div>
-    <div id="exam-timer" style="display:none;position:fixed;top:16px;right:16px;z-index:1000;text-align:center;font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:white;background:var(--navy);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:7px 18px;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(15,39,68,0.35);">⏱ 60:00</div>
+    <div id="exam-timer" class="clock">⏱ 30:00</div>
     <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
   </div>
   <div id="exam-area"></div>
@@ -342,7 +395,7 @@
     </div>
     <div class="ans-body">
       <div class="ans-grid" id="ans-grid"></div>
-      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray2);display:flex;gap:1.5rem;font-size:13px;color:var(--text2);">
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray2);display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font-size:13px;color:var(--text2);">
         <span>✅ Correctas: <strong id="ans-correct" style="color:var(--green);"></strong></span>
         <span>❌ Incorrectas: <strong id="ans-wrong" style="color:var(--red);"></strong></span>
         <span>Puntuación: <strong id="ans-score2" style="color:var(--navy);font-family:'DM Mono',monospace;"></strong></span>
@@ -466,10 +519,80 @@ const QUESTIONS = [
 ];
 
 let state={user:{name:'',dni:'',role:'',email:'',date:''},completed:new Array(9).fill(false),curMod:0,curSlide:0,examAnswers:{},examDone:false,examTimedOut:false};
-const EXAM_DURATION_SECONDS=60*60;
+const EXAM_DURATION_SECONDS=30*60;
+const COURSE_DURATION_SECONDS=60*60;
 let examTimerInterval=null;
 let examRemainingSeconds=EXAM_DURATION_SECONDS;
+let examEndsAt=0;
+let courseTimerInterval=null;
+let courseClockOn=false;
+let courseEndsAt=0;
 let examQuestions=[];
+
+function fmtClock(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');}
+
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');t.onclick=()=>t.classList.remove('show');document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('show'),10000);
+}
+
+// Course clock: 60 min, starts when the participant starts the course, stops when the exam starts
+function startCourseTimer(){
+  stopCourseTimer();
+  courseClockOn=true;
+  courseEndsAt=Date.now()+COURSE_DURATION_SECONDS*1000;
+  tickCourseTimer();
+  courseTimerInterval=setInterval(tickCourseTimer,1000);
+}
+function stopCourseTimer(){
+  if(courseTimerInterval){clearInterval(courseTimerInterval);courseTimerInterval=null;}
+  courseClockOn=false;
+}
+function tickCourseTimer(){
+  const left=Math.max(0,Math.ceil((courseEndsAt-Date.now())/1000));
+  const el=document.getElementById('course-timer');
+  if(el){el.textContent='⏱ Curso '+fmtClock(left);el.classList.toggle('warn',left<=60);}
+  if(left<=0&&courseTimerInterval){
+    clearInterval(courseTimerInterval);courseTimerInterval=null;
+    showToast('Se ha agotado el tiempo del curso (60 min).');
+  }
+}
+
+// Exam clock: 30 min
+function startExamTimer(){
+  stopExamTimer();
+  examEndsAt=Date.now()+EXAM_DURATION_SECONDS*1000;
+  tickExamTimer();
+  examTimerInterval=setInterval(tickExamTimer,1000);
+}
+function tickExamTimer(){
+  examRemainingSeconds=Math.max(0,Math.ceil((examEndsAt-Date.now())/1000));
+  updateExamTimerDisplay();
+  if(examRemainingSeconds<=0){
+    stopExamTimer();
+    if(!state.examDone){
+      state.examTimedOut=true;
+      submitExam();
+    }
+  }
+}
+function stopExamTimer(){
+  if(examTimerInterval){clearInterval(examTimerInterval);examTimerInterval=null;}
+}
+function updateExamTimerDisplay(){
+  const el=document.getElementById('exam-timer');
+  if(!el)return;
+  el.textContent='⏱ '+fmtClock(Math.max(examRemainingSeconds,0));
+  el.classList.toggle('warn',examRemainingSeconds<=60);
+}
+// Phones pause timers when the tab is in the background: resync on return
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  if(examTimerInterval)tickExamTimer();
+  if(courseTimerInterval)tickCourseTimer();
+});
 
 function shuffleArray(arr){
   const a=arr.slice();
@@ -492,7 +615,15 @@ function buildShuffledExam(){
   });
 }
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);const timerEl=document.getElementById('exam-timer');if(timerEl)timerEl.style.display=(id==='screen-exam')?'inline-block':'none';}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);if(id==='screen-register')stopCourseTimer();updateClockVisibility(id);}
+function updateClockVisibility(id){
+  const ex=document.getElementById('exam-timer'),co=document.getElementById('course-timer');
+  const showExam=id==='screen-exam';
+  const showCourse=courseClockOn&&(id==='screen-index'||id==='screen-module');
+  if(ex)ex.style.display=showExam?'inline-block':'none';
+  if(co)co.style.display=showCourse?'inline-block':'none';
+  document.body.classList.toggle('has-clock',showExam||showCourse);
+}
 
 function startCourse(){
   const name=document.getElementById('reg-name').value.trim();
@@ -502,7 +633,7 @@ function startCourse(){
   if(!name||!dni||!email){err.style.display='block';err.textContent='Por favor, completa los campos obligatorios: Nombre, NIF y Correo.';return;}
   err.style.display='none';
   state.user={name,dni,role:document.getElementById('reg-role').value.trim(),email,date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})};
-  renderIndex();showScreen('screen-index');
+  startCourseTimer();renderIndex();showScreen('screen-index');
 }
 
 function renderIndex(){
@@ -535,6 +666,7 @@ function renderModule(){
   const prev=state.curSlide>0?`<button class="btn" onclick="prevSlide()">← Anterior</button>`:`<button class="btn" disabled>← Anterior</button>`;
   const next=state.curSlide<m.slides.length-1?`<button class="btn btn-primary" onclick="nextSlide()">Siguiente →</button>`:`<button class="btn btn-success" onclick="completeModule()">Módulo completado ✓</button>`;
   area.innerHTML=`<div class="slide-content">${s.content()}</div><div class="slide-nav">${prev}<div class="slide-dots">${dots}</div>${next}</div>`;
+  area.querySelectorAll('table.matrix').forEach(t=>{const w=document.createElement('div');w.className='table-wrap';t.parentNode.insertBefore(w,t);w.appendChild(t);});
 }
 
 function nextSlide(){if(state.curSlide<MODULES[state.curMod].slides.length-1){state.curSlide++;renderModule();}}
@@ -542,6 +674,7 @@ function prevSlide(){if(state.curSlide>0){state.curSlide--;renderModule();}}
 function completeModule(){state.completed[state.curMod]=true;renderIndex();showScreen('screen-index');}
 
 function startExam(){
+  stopCourseTimer();
   state.examAnswers={};state.examDone=false;state.examTimedOut=false;
   examQuestions=buildShuffledExam();
   renderExam();showScreen('screen-exam');
@@ -550,43 +683,6 @@ function startExam(){
 
 function backToIndexFromExam(){stopExamTimer();showScreen('screen-index');}
 
-function startExamTimer(){
-  stopExamTimer();
-  examRemainingSeconds=EXAM_DURATION_SECONDS;
-  updateExamTimerDisplay();
-  examTimerInterval=setInterval(()=>{
-    examRemainingSeconds--;
-    updateExamTimerDisplay();
-    if(examRemainingSeconds<=0){
-      stopExamTimer();
-      if(!state.examDone){
-        state.examTimedOut=true;
-        submitExam();
-      }
-    }
-  },1000);
-}
-
-function stopExamTimer(){
-  if(examTimerInterval){clearInterval(examTimerInterval);examTimerInterval=null;}
-}
-
-function updateExamTimerDisplay(){
-  const el=document.getElementById('exam-timer');
-  if(!el)return;
-  const m=Math.floor(Math.max(examRemainingSeconds,0)/60);
-  const s=Math.max(examRemainingSeconds,0)%60;
-  el.textContent='⏱ '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  if(examRemainingSeconds<=60){
-    el.style.color='white';
-    el.style.background='var(--red)';
-    el.style.borderColor='rgba(255,255,255,0.3)';
-  }else{
-    el.style.color='white';
-    el.style.background='var(--navy)';
-    el.style.borderColor='rgba(255,255,255,0.25)';
-  }
-}
 
 function renderExam(){
   const area=document.getElementById('exam-area');area.innerHTML='';
@@ -627,7 +723,7 @@ function submitExam(){
     const failSub=document.querySelector('#screen-fail .fail-hdr p');
     if(state.examTimedOut){
       failHdr.textContent='Examen no válido';
-      failSub.textContent='Se ha agotado el tiempo máximo de 60 minutos. El examen no es válido.';
+      failSub.textContent='Se ha agotado el tiempo máximo de '+(EXAM_DURATION_SECONDS/60)+' minutos. El examen no es válido.';
       document.getElementById('fail-score').textContent='Tiempo agotado — '+score+'% ('+correct+' de '+examQuestions.length+' respuestas correctas)';
     }else{
       failHdr.textContent='Evaluación no superada';
